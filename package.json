@@ -1,0 +1,39 @@
+{
+  "name": "mithril-toolkit",
+  "version": "0.0.0",
+  "description": "Mithril Toolkit",
+  "main": "karma.conf.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "browserify": "^11.0.0",
+    "jasmine-core": "^2.3.4",
+  },
+  "devDependencies": {
+    "karma": "^0.13.3",
+    "karma-browserify": "^4.2.1",
+    "karma-chrome-launcher": "^0.2.0",
+    "karma-cli": "^0.1.0",
+    "karma-firefox-launcher": "^0.1.6",
+    "karma-jasmine": "^0.3.6",
+    "karma-requirejs": "^0.2.2",
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/inzurrekt/mithril-toolkit.git"
+  },
+  "keywords": [
+    "mithril",
+    "toolkit"
+  ],
+  "author": "inzurrekt@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/inzurrekt/mithril-toolkit/issues"
+  },
+  "homepage": "https://github.com/inzurrekt/mithril-toolkit"
+}
