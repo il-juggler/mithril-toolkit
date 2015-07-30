@@ -1,0 +1,1 @@
+window.mtk = require('./index.js');

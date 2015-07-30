@@ -1,3 +1,11 @@
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+module.exports = {
+    prop : require('./src/properties.js'),
+    ModelManager : require('./src/ModelManager.js')
+};
+},{"./src/ModelManager.js":3,"./src/properties.js":4}],2:[function(require,module,exports){
+window.mtk = require('./index.js');
+},{"./index.js":1}],3:[function(require,module,exports){
 'use strict';
 module.exports = ModelManager;
 
@@ -166,3 +174,73 @@ function ModelManager () {
 
     return mm;
 }
+
+},{"./properties":4}],4:[function(require,module,exports){
+var properties = {};
+module.exports = properties;
+
+properties.string = function(params) {
+    var internal, prop, set, validate;
+    internal = m.prop();
+
+    set = function (val) {
+        internal(val);
+        return validate();
+    };
+
+    validate = function () {
+        var valid;
+        valid = params.match ? internal().match(params.match) : true;
+        return prop.valid(valid ? true : false);
+    };
+
+    prop = function () {
+        if (arguments.length) {
+            return set(arguments[0]);
+        } else {
+            return internal();
+        }
+    };
+
+    prop.valid = m.prop();
+    return prop;
+};
+
+properties.number = function(params) {
+    var prop;
+    prop = m.prop();
+    return prop;
+};
+
+booleans = {
+    'true': true,
+    '1': true,
+    '0': false,
+    'false': false,
+    'on': true,
+    'off': true,
+    'null': false
+};
+
+properties.boolean = function(params) {
+    var internal, prop, set;
+    internal = m.prop();
+    prop = function() {
+        if (arguments.length) {
+            return set(arguments[0]);
+        } else {
+            return internal();
+        }
+    };
+    return set = function(val) {
+        if (typeof val === 'undefined') {
+            return internal(void 0);
+        }
+        if (typeof booleans[String(val)] === 'undefined') {
+            return internal(void 0);
+        }
+        return internal(booleans[String(val)]);
+    };
+};
+
+},{}]},{},[2]);
