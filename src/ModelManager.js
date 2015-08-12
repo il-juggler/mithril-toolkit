@@ -7,11 +7,39 @@ var props = require('./properties');
  * This is a module for managing REST_API Models
  */
 function ModelManager () {
-    var booleans, createProperty, modelsHash;
+    var booleans, modelsHash;
     modelsHash = {}; 
 
     //Api prefix for the web services
-    mm.apiPrefix  = m.prop('/api/');
+    mm.api = {};
+    mm.api.prefix = m.prop('/api');
+
+    mm.api.get = function (id) {
+        return {
+            url : mm.api.prefix().concat('/', this.serviceName(), '/', id),
+            method : 'GET'
+        };
+    };
+
+    mm.api.create = function () {
+        return {
+            url : mm.api.prefix().concat('/', this.serviceName()),
+            method : 'POST'
+        };
+    };
+
+    mm.api.update = function (id) {
+        return {
+            
+        };
+    };
+
+    mm.api['delete'] = function () {
+        return {
+
+        };
+    };
+
     mm.properties = props;
 
     /** 
@@ -120,6 +148,11 @@ function ModelManager () {
         function addProp(data, key) {
             return this[props[key].name] = m.prop(data[props[key].name] || null);
         };
+        
+
+        constructorFn.id = function (resource) {
+            return resource[_idKey]();
+        };
 
         constructorFn.save = function(resource) {
             return m.request({
@@ -154,7 +187,7 @@ function ModelManager () {
         return constructorFn;
     };
 
-    createProperty = function(propParams) {
+    function createProperty (propParams) {
         return {
             create: function() {
                 return m.prop;
@@ -162,7 +195,6 @@ function ModelManager () {
             name: propParams.name
         };
     };
-
 
     return mm;
 }

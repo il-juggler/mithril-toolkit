@@ -6,11 +6,12 @@
   "directories": {
     "test": "test"
   },
-  "dependencies": {
-    "browserify": "^11.0.0",
-    "jasmine-core": "^2.3.4"
+  "dependencies": {  
   },
   "devDependencies": {
+    "browserify": "^11.0.0",
+    "jasmine-core": "^2.3.4",
+    "gulp": "^3.9.0",
     "karma": "^0.13.3",
     "karma-browserify": "^4.2.1",
     "karma-chrome-launcher": "^0.2.0",
@@ -20,7 +21,8 @@
     "karma-requirejs": "^0.2.2"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "pub" : "npm update" 
   },
   "repository": {
     "type": "git",
