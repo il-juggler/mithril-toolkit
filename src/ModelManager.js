@@ -7,9 +7,9 @@ var props = require('./properties');
  * This is a module for managing REST_API Models
  */
 function ModelManager () {
-    var booleans, modelsHash;
+    var booleans, createProperty, modelsHash;
     modelsHash = {}; 
-
+    
     //Api prefix for the web services
     mm.api = {};
     mm.api.prefix = m.prop('/api');
@@ -21,29 +21,42 @@ function ModelManager () {
         };
     };
 
-    mm.api.create = function () {
+    mm.api.create = function (data) {
         return {
             url : mm.api.prefix().concat('/', this.serviceName()),
-            method : 'POST'
+            method : 'POST',
+            data : data
         };
     };
 
-    mm.api.update = function (id) {
+    mm.api.update = function (id, data) {
         return {
-            
-        };
+            url : mm.api.prefix().concat('/', this.serviceName(), '/', id),
+            method : 'PUT',
+            data : data
+        }
     };
 
-    mm.api['delete'] = function () {
+    mm.api.find = function (search) {
         return {
+            url : mm.api.prefix().concat('/', this.serviceName()),
+            method : 'GET',
+            data : search || {}
+        }
+    };
 
-        };
+    mm.api['delete'] = function (id) {
+        return {
+            url : mm.api.prefix().concat('/', this.serviceName(), '/', id),
+            method : 'DELETE'
+        }
     };
 
     mm.properties = props;
 
     /** 
      * Accesor for the ModelsManager
+     *
      */
     function mm (modelName, constructorFn) {
         if (arguments.length === 1) {
@@ -55,9 +68,10 @@ function ModelManager () {
 
     /** 
      * Function that constructs a model from a Name and a constructor function
+     *
      */
     function createModel (modelName, constructorFn) {
-        var _idKey, _serviceName, addProp, defaultGetUrl, getUrl, props;
+        var _idKey, _serviceName, addProp, props;
         //Pull for the properties
         props = {};
         //Name of the service to work with the api
@@ -65,35 +79,6 @@ function ModelManager () {
         //Property key of the identifier property
         _idKey = 'id';
         var internalGetUrl;
-
-        /*
-        Construct the Url of the model
-         */
-        getUrl = function(type, id) {
-            if (internalGetUrl) {
-                return internalGetUrl(type, id);
-            } else {
-                return defaultGetUrl(type, id);
-            }
-        };
-
-        /** 
-         * The url for the services
-         */
-        defaultGetUrl = function(urlType, id) {
-            var url, urlParams;
-            
-            url = mm.apiPrefix().concat(_serviceName);
-            urlParams = {};
-
-            if (urlType === 'id') {
-                url += '/get/'.concat(id);
-            } else if(urlType === 'create') {
-                url += '/create';
-            } 
-
-            return url.concat(m.route.buildQueryString(urlParams));
-        };
 
         //ModelName getter
         constructorFn.modelName = function() {
@@ -135,6 +120,24 @@ function ModelManager () {
             return constructorFn;
         };
 
+
+
+        constructorFn.prototype.toJSON = function() {
+            var json = {};
+            var self = this;
+
+            Object.keys(props).forEach(function (k) {
+                if(k.indexOf('$') == 0) return;
+
+                if(typeof self[k].toJSON === 'function') {
+                    json[k] = self[k].toJSON()
+                } else {
+                    json[k] = self[k]();
+                }
+            });
+
+            return json;
+        };
         /** 
          * Initialize a new instance by copy the data hash to model properties
          */
@@ -151,43 +154,43 @@ function ModelManager () {
         
 
         constructorFn.id = function (resource) {
-            return resource[_idKey]();
+            return resource[_idKey].call();
         };
 
         constructorFn.save = function(resource) {
-            return m.request({
-                method: 'POST',
-                url: getUrl('create'),
-                data : resource
-            });
+            var qParams = _.extend({}, mm.api.create.call(constructorFn, resource));
+            return m.request(qParams);
         };
 
         constructorFn.get = function(id, extraArgs) {
-            return m.request(_.extend({
-                method: 'GET',
-                url: getUrl('id', id),
-                unwrapSuccess: function (r) { 
-                    return new constructorFn(r.data); 
+            var qParams = _.extend({
+                unwrapSuccess : function (r) { 
+                    return new constructorFn( r.data ); 
                 }
-            },extraArgs));
+            }, mm.api.get.call(constructorFn,id), extraArgs);
+
+            return m.request(qParams);
         };
 
-        constructorFn.find = function (iQuery) {
-            return m.request({
-                method : 'GET',
-                url : getUrl('find', iQuery),
+        constructorFn.find = function (iQuery, extraArgs) {
+            var qParams = _.extend({
                 unwrapSuccess : function (r) {
                     return r.data.map(function (item) { 
                         return new constructorFn(item); 
                     });
                 }
-            });
+            },mm.api.find.call(constructorFn, iQuery), extraArgs);
+
+            console.log(qParams);
+
+            return m.request(qParams);
+              
         };
 
         return constructorFn;
     };
 
-    function createProperty (propParams) {
+    createProperty = function(propParams) {
         return {
             create: function() {
                 return m.prop;
@@ -195,6 +198,7 @@ function ModelManager () {
             name: propParams.name
         };
     };
+
 
     return mm;
 }
